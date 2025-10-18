@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Default": {
+      "commandName": "Project"
+    },
+    "Profile 1": {
+      "commandName": "Executable",
+      "executablePath": "alacritty.exe",
+      "commandLineArgs": "-e dotnet run",
+      "workingDirectory": "C:\\Users\\lftim\\source\\repos\\TerminalRenderer\\TerminalRenderer"
+    }
+  }
+}
