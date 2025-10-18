@@ -1,14 +1,29 @@
 ﻿using TerminalRenderer;
 
+/*
+This code is my companion to reading Peter Shirley's Fundamentals of Computer Graphics
+It's a simple library for drawing and rendering to Console.
+
+Planned stuff:
+- Anti Aliasing
+- 3d
+- More shapes
+
+----------------------------------------------------------------------------
+When using it be mindful to your terminal's fontsize and window size.
+Currently using windows terminal cmd, font Cascadia Mono 4
+Enjoy !!
+*/
+
 try
 {
-    var c = 460;
-    var r = 120;
+    var c = 475;
+    var r = 124;
     var window = new Window(c,r);
 
     window.Render(s =>
     {
-        s.DrawTriangle(new Vector3(0, r, 0), new Vector3(c/2, 0, 0), new Vector3(c, r, 0));
+        s.ShowSize();
     });
 
 } catch (Exception ex)

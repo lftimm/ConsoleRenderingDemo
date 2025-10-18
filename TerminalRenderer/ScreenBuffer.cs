@@ -42,19 +42,21 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     // Drawing methods
     public void Draw(Action<ScreenBuffer> drawThis)
     {
-        FlushScreen(Brightness.Dark);
+        FlushScreen(Brightness.Dark1);
         drawThis.Invoke(this);
         DumpBufferToConsole();
         Clear();
     }
     
+    public void ShowSize() => FlushScreen(Brightness.Normal1);
+
     public void Clear()
     {
         StringBuilder.Clear();
         Console.SetCursorPosition(0, 0);
     }
     
-    public void PointAt(double x, double y, Brightness brightness = Brightness.Normal)
+    public void PointAt(double x, double y, Brightness brightness) 
     {
         var (screenX, screenY) = ConvertToScreenCoordinates(x, y);
         Screen[screenY, screenX] = (char)brightness;  
@@ -76,7 +78,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
 
             var v = parametricLineEquation(t);
 
-            PointAt(v.X, v.Y, Brightness.Bright);
+            PointAt(v.X, v.Y, Brightness.Bright4);
 
             x += step;
         }
@@ -111,7 +113,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
                 var gamma = getGamma(x, y);
 
                 if(beta >= 0 && gamma >= 0 && (beta + gamma) <= 1)
-                    PointAt(x, y, Brightness.Bright);
+                    PointAt(x, y, Brightness.Bright4);
             }
         }
 
