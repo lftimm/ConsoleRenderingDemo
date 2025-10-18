@@ -2,8 +2,8 @@
 
 try
 {
-    var c = 120;
-    var r = 77;
+    var c = 460;
+    var r = 120;
     var window = new Window(c,r);
 
     window.Render(s =>

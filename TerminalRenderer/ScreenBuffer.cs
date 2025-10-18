@@ -4,27 +4,22 @@ namespace TerminalRenderer;
 
 public class ScreenBuffer(int columnNumber, int rowNumber)
 {
-    private char[,] Screen { get; } = CreateScreenBuffer(columnNumber, rowNumber);
+    private char[,] Screen { get; } = new char[rowNumber, columnNumber];
     public int Rows { get; } = rowNumber;
     public int Columns { get; } = columnNumber;
     public StringBuilder StringBuilder = new ();
 
-    private static char[,] CreateScreenBuffer(int columnNumber, int rowNumber)
-    {
-        var screen = new char[rowNumber, columnNumber];
-        return screen;
-    }
-    
     private void FlushScreen(Brightness brightness)
     {
         for (int i = 0; i < Rows; i++)
             for (int j = 0; j < Columns; j++)
                 Screen[i, j] = (char)brightness; 
     }
-    
+
     private void DumpBufferToConsole()
     {
         StringBuilder.Clear();
+
         for (int y = 0; y < Rows; y++) 
         {
             for (int x = 0; x < Columns; x++)
@@ -47,14 +42,15 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     // Drawing methods
     public void Draw(Action<ScreenBuffer> drawThis)
     {
+        FlushScreen(Brightness.Dark);
         drawThis.Invoke(this);
         DumpBufferToConsole();
+        Clear();
     }
     
     public void Clear()
     {
         StringBuilder.Clear();
-        Console.Clear();
         Console.SetCursorPosition(0, 0);
     }
     
@@ -69,7 +65,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
         var v0 = new Vector3(x0, y0, 0);
         var v1 = new Vector3(x1, y1, 0);
 
-        var parametricLineEquation = (double t) => v0 + t*(v1-v0);
+        Vector3 parametricLineEquation(double t) => v0 + t * (v1 - v0);
 
         var x = x0;
         var step = 1e-1;
@@ -93,19 +89,19 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
         var ymin = (int)Math.Floor(Math.Min(Math.Min(a.Y, b.Y), c.Y));
         var ymax = (int)Math.Ceiling(Math.Max(Math.Max(a.Y, b.Y), c.Y));
 
-        var getGamma = (double x, double y) =>
+        double getGamma(double x, double y)
         {
-            var numerator = (a.Y-b.Y)*x + (b.X - a.X) * y + a.X * b.Y - b.X * a.Y;
+            var numerator = (a.Y - b.Y) * x + (b.X - a.X) * y + a.X * b.Y - b.X * a.Y;
             var denominator = (a.Y - b.Y) * c.X + (b.X - a.X) * c.Y + a.X * b.Y - b.X * a.Y;
             return numerator / denominator;
-        };
+        }
 
-        var getBeta = (double x, double y) =>
+        double getBeta(double x, double y)
         {
             var numerator = (a.Y - c.Y) * x + (c.X - a.X) * y + a.X * c.Y - c.X * a.Y;
             var denominator = (a.Y - c.Y) * b.X + (c.X - a.X) * b.Y + a.X * c.Y - c.X * a.Y;
             return numerator / denominator;
-        };
+        }
 
         for (int x = xmin; x < xmax; x++)
         {
