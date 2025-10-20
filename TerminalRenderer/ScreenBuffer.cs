@@ -1,19 +1,24 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 
 namespace TerminalRenderer;
 
 public class ScreenBuffer(int columnNumber, int rowNumber)
 {
-    private char[,] Screen { get; } = new char[rowNumber, columnNumber];
+    private const int KernelSize = 6;
+    private int HalfKernelSize = KernelSize/2;
+    private Pixel[,] Screen { get; } = new Pixel[rowNumber, columnNumber];
     public int Rows { get; } = rowNumber;
     public int Columns { get; } = columnNumber;
     public StringBuilder StringBuilder = new ();
 
-    private void FlushScreen(Brightness brightness)
+    private void FlushScreen(Brightness brightness) => FlushScreen((int)brightness);    
+
+    private void FlushScreen(int brightness)
     {
         for (int i = 0; i < Rows; i++)
             for (int j = 0; j < Columns; j++)
-                Screen[i, j] = (char)brightness; 
+                Screen[i, j] = new (brightness);
     }
 
     private void DumpBufferToConsole()
@@ -24,13 +29,59 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
         {
             for (int x = 0; x < Columns; x++)
             {
-                StringBuilder.Append(Screen[y, x]);
+                StringBuilder.Append(Screen[y, x].Display);
             }
             StringBuilder.AppendLine();
         }
+
+
         Console.Write(StringBuilder.ToString());
     }
+
+    private void ApplyBlur()
+    {
+        var temp = Screen;
+
+        for(int r = 0; r < Rows; r++)
+        {
+            for (int c = 0; c < Columns; c++)
+            {
+                var brightness = CalculateBrightness(c, Columns, (k) => GetBrightnessIn(r,k));
+                temp[r, c] = new Pixel(brightness);
+            }
+        }
+
+        for(int c = 0; c < Columns; c++)
+        {
+            for (int r = 0; r < Rows; r++)
+            {
+                var brightness = CalculateBrightness(r, Rows, (k) => GetBrightnessIn(k,c));
+                temp[r, c] = new Pixel(brightness);
+            }
+        }
+
+        Array.Copy(temp, Screen, temp.Length);
+    }
+
+    private int CalculateBrightness(int index, int maxSize, Func<int, double> brightnessGet) 
+    {
+        var sum = 0.0;
+        for(int k = -HalfKernelSize; k < HalfKernelSize; k++)
+        {
+            var indexToCheck = k + index;
+            if (indexToCheck < 0 || indexToCheck >= maxSize)  
+                continue;
+
+            Debug.WriteLine(indexToCheck);
+            sum += brightnessGet(indexToCheck) * (1.0 / KernelSize);
+        }
     
+        return (int)Math.Floor(sum);
+    }
+
+    private Pixel GetPixelIn(int r, int c) => Screen[r, c];
+    private double GetBrightnessIn(int r, int c) => GetPixelIn(r,c).Brightness;
+
     private (int,int) ConvertToScreenCoordinates(double x, double y)
     {
         if (x >= Columns || y >= Rows)  
@@ -39,16 +90,16 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
         return screenCoordinates;
     }
 
-    // Drawing methods
     public void Draw(Action<ScreenBuffer> drawThis)
     {
-        FlushScreen(Brightness.Dark1);
+        FlushScreen(0);
         drawThis.Invoke(this);
+        ApplyBlur();
         DumpBufferToConsole();
         Clear();
     }
     
-    public void ShowSize() => FlushScreen(Brightness.Normal1);
+    public void ShowSize() => FlushScreen(Brightness.Normal);
 
     public void Clear()
     {
@@ -59,7 +110,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     public void PointAt(double x, double y, Brightness brightness) 
     {
         var (screenX, screenY) = ConvertToScreenCoordinates(x, y);
-        Screen[screenY, screenX] = (char)brightness;  
+        Screen[screenY, screenX] = new ((int)brightness);  
     }
 
     public void LineFromTo(double x0, double y0, double x1, double y1)
@@ -78,7 +129,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
 
             var v = parametricLineEquation(t);
 
-            PointAt(v.X, v.Y, Brightness.Bright4);
+            PointAt(v.X, v.Y, Brightness.Bright);
 
             x += step;
         }
@@ -113,7 +164,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
                 var gamma = getGamma(x, y);
 
                 if(beta >= 0 && gamma >= 0 && (beta + gamma) <= 1)
-                    PointAt(x, y, Brightness.Bright4);
+                    PointAt(x, y, Brightness.Bright);
             }
         }
 
