@@ -5,8 +5,8 @@ namespace TerminalRenderer;
 
 public class ScreenBuffer(int columnNumber, int rowNumber)
 {
-    private const int KernelSize = 6;
-    private int HalfKernelSize = KernelSize/2;
+    private const int KernelSize = 3;
+    private const int HalfKernelSize = KernelSize / 2;
     private Pixel[,] Screen { get; } = new Pixel[rowNumber, columnNumber];
     public int Rows { get; } = rowNumber;
     public int Columns { get; } = columnNumber;
@@ -66,13 +66,12 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     private int CalculateBrightness(int index, int maxSize, Func<int, double> brightnessGet) 
     {
         var sum = 0.0;
-        for(int k = -HalfKernelSize; k < HalfKernelSize; k++)
+        for(int k = -HalfKernelSize; k <= HalfKernelSize; k++)
         {
             var indexToCheck = k + index;
             if (indexToCheck < 0 || indexToCheck >= maxSize)  
                 continue;
 
-            Debug.WriteLine(indexToCheck);
             sum += brightnessGet(indexToCheck) * (1.0 / KernelSize);
         }
     
@@ -80,7 +79,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     }
 
     private Pixel GetPixelIn(int r, int c) => Screen[r, c];
-    private double GetBrightnessIn(int r, int c) => GetPixelIn(r,c).Brightness;
+    private int GetBrightnessIn(int r, int c) => GetPixelIn(r,c).Brightness;
 
     private (int,int) ConvertToScreenCoordinates(double x, double y)
     {
@@ -121,7 +120,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
         Vector3 parametricLineEquation(double t) => v0 + t * (v1 - v0);
 
         var x = x0;
-        var step = 1e-1;
+        var step = 5e-1;
 
         while(x < x1)
         {

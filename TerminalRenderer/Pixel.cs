@@ -1,6 +1,5 @@
 ﻿namespace TerminalRenderer;
-
-public class Pixel
+public struct Pixel
 {
     public int Brightness { get;  }
     public char Display { get; }

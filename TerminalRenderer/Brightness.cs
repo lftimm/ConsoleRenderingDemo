@@ -9,15 +9,13 @@ namespace TerminalRenderer;
 public enum Brightness
 {
     Dark = 0,
-    Dark2,
-    Dark3,
-
-    Normal,
-    Normal2,
-    Normal3 ,
-
-    Bright1,
-    Bright2,
-    Bright3,
-    Bright,
+    Dark2 = 1,
+    Dark3 = 2,
+    Normal = 3,
+    Normal2 = 4,
+    Normal3 = 5 ,
+    Bright1 = 6,
+    Bright2 = 7,
+    Bright3 = 8,
+    Bright = 9,
 }
