@@ -17,13 +17,24 @@ try
     var y = 75;
     var window = new Window(x,y);
 
-    var p1 = new Vector3(4, y / 2 + 10 , 0);
-    var p2 = new Vector3(x/2+1, 20, 0);
-    var p3 = new Vector3(x/2+6, y-30, 0);
+    var rot = Matrix4.Rotate(Axis.Z, 180);
+    var trans = Matrix4.Displace(x/2, y/2, 0);
+    var mat = Matrix4.Chain(rot, trans);
+
+    var p1 = new Vector3(0, 20, 0);      // Top vertex
+    var p2 = new Vector3(-15, -10, 0);   // Bottom left
+    var p3 = new Vector3(15, -10, 0);    // Bottom right
+
+    var tp1 = trans * p1;
+    var tp2 = trans * p2;
+    var tp3 = trans * p3;
+
 
     window.Render(s =>
     {
-        s.DrawTriangle(p1,p2,p3);
+        //s.LineFromTo(l1, l2);
+        s.DrawTriangle(tp1,tp2,tp3);
+        //s.DrawTriangle(tp1,tp2,tp3);
     });
 
 } catch (Exception ex)

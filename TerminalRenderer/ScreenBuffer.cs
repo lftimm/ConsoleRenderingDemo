@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 
 namespace TerminalRenderer;
 
@@ -83,8 +82,6 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
 
     private (int,int) ConvertToScreenCoordinates(double x, double y)
     {
-        if (x >= Columns || y >= Rows)  
-            throw new OutOfScreenException();
         var screenCoordinates = ((int)Math.Round(x),(int)Math.Round(y));
         return screenCoordinates;
     }
@@ -93,7 +90,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     {
         FlushScreen(0);
         drawThis.Invoke(this);
-        ApplyBlur();
+        //ApplyBlur();
         DumpBufferToConsole();
         Clear();
     }
@@ -109,8 +106,14 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     public void PointAt(double x, double y, Brightness brightness) 
     {
         var (screenX, screenY) = ConvertToScreenCoordinates(x, y);
+
+        if (screenX >=  Columns || screenY >= Rows || screenX <= 0 || screenY <= 0) 
+            return;
+
         Screen[screenY, screenX] = new ((int)brightness);  
     }
+
+    public void LineFromTo(Vector3 v1, Vector3 v2) => LineFromTo(v1.X, v1.Y, v2.X, v2.Y);
 
     public void LineFromTo(double x0, double y0, double x1, double y1)
     {
@@ -136,6 +139,7 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
 
     public void DrawTriangle(Vector3 a, Vector3 b, Vector3 c)
     {
+
         var xmin = (int)Math.Floor(Math.Min(Math.Min(a.X, b.X), c.X));
         var xmax = (int)Math.Ceiling(Math.Max(Math.Max(a.X, b.X), c.X));
         var ymin = (int)Math.Floor(Math.Min(Math.Min(a.Y, b.Y), c.Y));
