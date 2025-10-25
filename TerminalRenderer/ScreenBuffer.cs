@@ -2,14 +2,22 @@
 
 namespace TerminalRenderer;
 
-public class ScreenBuffer(int columnNumber, int rowNumber)
+public class ScreenBuffer(int Columns, int Rows, View Camera)
 {
+    private static float AspectRatio = 1 / 2f;
+    private readonly Matrix4 CanonicalMatrix = CreateCanonicalMatrix(Columns, Rows);
+    private readonly Matrix4 AspectRatioFix = Matrix4.Scale(1 / AspectRatio, 1, 1);
+
     private const int KernelSize = 3;
     private const int HalfKernelSize = KernelSize / 2;
-    private Pixel[,] Screen { get; } = new Pixel[rowNumber, columnNumber];
-    public int Rows { get; } = rowNumber;
-    public int Columns { get; } = columnNumber;
+    private Pixel[,] Screen { get; } = new Pixel[Rows, Columns];
     public StringBuilder StringBuilder = new ();
+    private static Matrix4 CreateCanonicalMatrix(int Columns, int Rows)
+    {
+        var mat = Matrix4.Displace(Columns / 2.0, Rows / 2.0, 0) *
+                  Matrix4.Scale(1.0, -1.0, 1.0);
+        return mat;
+    }
 
     private void FlushScreen(Brightness brightness) => FlushScreen((int)brightness);    
 
@@ -80,9 +88,11 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
     private Pixel GetPixelIn(int r, int c) => Screen[r, c];
     private int GetBrightnessIn(int r, int c) => GetPixelIn(r,c).Brightness;
 
-    private (int,int) ConvertToScreenCoordinates(double x, double y)
+
+    private (int,int) ConvertToScreenCoordinates(Vector3 vec)
     {
-        var screenCoordinates = ((int)Math.Round(x),(int)Math.Round(y));
+        var newVec = CanonicalMatrix * Camera.Transform * AspectRatioFix  * vec;
+        var screenCoordinates = ((int)Math.Round(newVec.X),(int)Math.Round(newVec.Y));
         return screenCoordinates;
     }
 
@@ -102,16 +112,23 @@ public class ScreenBuffer(int columnNumber, int rowNumber)
         StringBuilder.Clear();
         Console.SetCursorPosition(0, 0);
     }
-    
-    public void PointAt(double x, double y, Brightness brightness) 
+
+    public void PointAt(Vector3 vec, Brightness brightness) 
     {
-        var (screenX, screenY) = ConvertToScreenCoordinates(x, y);
+        var (screenX, screenY) = ConvertToScreenCoordinates(vec);
 
         if (screenX >=  Columns || screenY >= Rows || screenX <= 0 || screenY <= 0) 
             return;
 
         Screen[screenY, screenX] = new ((int)brightness);  
     }
+
+    public void PointAt(double x, double y, double z, Brightness brightness)
+    {
+        var vec = new Vector3(x, y, z);
+        PointAt(vec, brightness);
+    }
+    public void PointAt(double x, double y, Brightness brightness) => PointAt(x, y, 0, brightness);
 
     public void LineFromTo(Vector3 v1, Vector3 v2) => LineFromTo(v1.X, v1.Y, v2.X, v2.Y);
 

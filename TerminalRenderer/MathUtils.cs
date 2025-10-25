@@ -16,12 +16,8 @@ public enum Plane
     YZ
 }
 
-public record struct Vector3(double x, double y, double z) 
+public record struct Vector3(double X, double Y, double Z) 
 {
-    public double X { get; init; } = x;
-    public double Y { get; init; } = y;
-    public double Z { get; init; } = z;
-
     public double Dot(Vector3 v2) => X * v2.X + Y * v2.Y + Z * v2.Z;
     public Vector3 Cross(Vector3 v2) => new(
             Y * v2.Z - Z * v2.Y,
