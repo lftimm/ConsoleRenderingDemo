@@ -1,4 +1,5 @@
-﻿using TerminalRenderer;
+﻿using System.Diagnostics;
+using TerminalRenderer;
 
 /*
 This code is my companion to reading Peter Shirley's Fundamentals of Computer Graphics
@@ -26,18 +27,30 @@ try
 
     var window = new Window(x,y);
 
-    var p0 = new Vector3(-1, 1, 1);
-    var p1 = new Vector3(1, 1, 1);
-    var p2 = new Vector3(-1, -1, 1);
-    var p3 = new Vector3(1, -1, 1);
 
-    var t1 = new Vector3(-0.5, -0.5, 0);
-    var t2 = new Vector3(0.5, -0.5, 0);
-    var t3 = new Vector3(0, 0.5, 0.5);
+    var t1 = new Vector3(-0.5, 0.5, 0);
+    var t2 = new Vector3(-0.5, -0.5, 0);
+    var t3 = new Vector3(0.5, -0.5, 0);
+    var t4 = new Vector3(0.5, 0.5, 0);
 
+
+    var stopwatch = Stopwatch.StartNew();
+    var rotationSpeed = 45.0;
     window.Render(s =>
     {
-        s.DrawTriangle(t1, t2, t3);
+        var time = stopwatch.Elapsed.TotalSeconds;
+
+        var angle = time * rotationSpeed;
+
+        var rotation = Matrix4.Rotate(Axis.Y, angle);
+
+        var r1 = rotation * t1;
+        var r2 = rotation * t2;
+        var r3 = rotation * t3;
+        var r4 = rotation * t4;
+
+        s.DrawTriangle(r1, r2, r3);
+        s.DrawTriangle(r3, r4, r1);
     });
 
 } catch (Exception ex)

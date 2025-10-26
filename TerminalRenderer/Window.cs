@@ -2,7 +2,7 @@
 
 public class Window(int Columns, int Rows)
 {
-    public const int SleepTime = 32;
+    public const int SleepTime = 17;
     public ScreenBuffer Screen { get; init; } = new (Columns, Rows);
 
     public void Render(Action<ScreenBuffer> drawActions)

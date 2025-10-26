@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.Text;
 
 namespace TerminalRenderer;
 
 public class ScreenBuffer
 {
-    private const float AspectRatio = 1;
+    private const float AspectRatio = 2;
     private const int KernelSize = 3;
     private const int HalfKernelSize = KernelSize / 2;
     public StringBuilder StringBuilder = new ();
@@ -25,7 +24,7 @@ public class ScreenBuffer
 
     private Matrix4 CreateOrthogonalProjectionMatrix()
     {
-        var aspectRatioFix = Matrix4.Scale(AspectRatio, 1, 1);
+        var aspectRatioFix = Matrix4.Scale(1/AspectRatio, 1, 1);
 
         var l = -1f;
         var r = 1f;
@@ -117,7 +116,7 @@ public class ScreenBuffer
     {
         FlushScreen(0);
         drawThis.Invoke(this);
-        //ApplyBlur();
+        ApplyBlur();
         DumpBufferToConsole();
         Clear();
     }
