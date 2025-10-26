@@ -2,21 +2,45 @@
 
 namespace TerminalRenderer;
 
-public class ScreenBuffer(int Columns, int Rows, View Camera)
+public class ScreenBuffer
 {
-    private static float AspectRatio = 1 / 2f;
-    private readonly Matrix4 CanonicalMatrix = CreateCanonicalMatrix(Columns, Rows);
-    private readonly Matrix4 AspectRatioFix = Matrix4.Scale(1 / AspectRatio, 1, 1);
-
+    private const float AspectRatio = 1;
     private const int KernelSize = 3;
     private const int HalfKernelSize = KernelSize / 2;
-    private Pixel[,] Screen { get; } = new Pixel[Rows, Columns];
     public StringBuilder StringBuilder = new ();
-    private static Matrix4 CreateCanonicalMatrix(int Columns, int Rows)
+    
+    private int Columns { get; set; } 
+    private int Rows { get; set; } 
+    private Matrix4 OrthogonalMatrix { get; set; }
+    private Pixel[,] Screen { get; set; }
+
+    public ScreenBuffer(int columns, int rows)
     {
-        var mat = Matrix4.Displace(Columns / 2.0, Rows / 2.0, 0) *
-                  Matrix4.Scale(1.0, -1.0, 1.0);
-        return mat;
+        Columns = columns;
+        Rows = rows;
+        Screen = new Pixel[Rows,Columns];
+        OrthogonalMatrix = CreateOrthogonalProjectionMatrix();
+    }
+
+    private Matrix4 CreateOrthogonalProjectionMatrix()
+    {
+        var aspectRatioFix = Matrix4.Scale(AspectRatio, 1, 1);
+
+        var l = -1f;
+        var r = 1f;
+        var b = -1f;
+        var t = 1f;
+        var n = 1f;
+        var f = -1f;
+
+        var scaleX = Columns / 2;
+        var scaleY = Rows / 2;
+        var m1 = Matrix4.Displace(scaleX, scaleY, 0) *
+                  Matrix4.Scale(scaleX, -scaleY, 1.0);
+        var m2 = Matrix4.Scale(2/(r-l), 2/(t-b), 2/(n-f));
+        var m3 = Matrix4.Displace(-(l+r)/2, -(b+t)/2, -(f+n)/2);
+
+        return Matrix4.MultiplyInCorrectOrder(aspectRatioFix, m1, m2, m3); 
     }
 
     private void FlushScreen(Brightness brightness) => FlushScreen((int)brightness);    
@@ -88,14 +112,6 @@ public class ScreenBuffer(int Columns, int Rows, View Camera)
     private Pixel GetPixelIn(int r, int c) => Screen[r, c];
     private int GetBrightnessIn(int r, int c) => GetPixelIn(r,c).Brightness;
 
-
-    private (int,int) ConvertToScreenCoordinates(Vector3 vec)
-    {
-        var newVec = CanonicalMatrix * Camera.Transform * AspectRatioFix  * vec;
-        var screenCoordinates = ((int)Math.Round(newVec.X),(int)Math.Round(newVec.Y));
-        return screenCoordinates;
-    }
-
     public void Draw(Action<ScreenBuffer> drawThis)
     {
         FlushScreen(0);
@@ -115,11 +131,9 @@ public class ScreenBuffer(int Columns, int Rows, View Camera)
 
     public void PointAt(Vector3 vec, Brightness brightness) 
     {
-        var (screenX, screenY) = ConvertToScreenCoordinates(vec);
-
-        if (screenX >=  Columns || screenY >= Rows || screenX <= 0 || screenY <= 0) 
-            return;
-
+        var newVec = OrthogonalMatrix * vec;
+        var screenX= (int)Math.Clamp(Math.Round(newVec.X), 0, Columns-1);
+        var screenY= (int)Math.Clamp(Math.Round(newVec.Y),0, Rows-1);
         Screen[screenY, screenX] = new ((int)brightness);  
     }
 
@@ -128,7 +142,6 @@ public class ScreenBuffer(int Columns, int Rows, View Camera)
         var vec = new Vector3(x, y, z);
         PointAt(vec, brightness);
     }
-    public void PointAt(double x, double y, Brightness brightness) => PointAt(x, y, 0, brightness);
 
     public void LineFromTo(Vector3 v1, Vector3 v2) => LineFromTo(v1.X, v1.Y, v2.X, v2.Y);
 
@@ -148,7 +161,7 @@ public class ScreenBuffer(int Columns, int Rows, View Camera)
 
             var v = parametricLineEquation(t);
 
-            PointAt(v.X, v.Y, Brightness.Bright);
+            PointAt(v.X, v.Y, 0, Brightness.Bright);
 
             x += step;
         }
@@ -156,11 +169,10 @@ public class ScreenBuffer(int Columns, int Rows, View Camera)
 
     public void DrawTriangle(Vector3 a, Vector3 b, Vector3 c)
     {
-
-        var xmin = (int)Math.Floor(Math.Min(Math.Min(a.X, b.X), c.X));
-        var xmax = (int)Math.Ceiling(Math.Max(Math.Max(a.X, b.X), c.X));
-        var ymin = (int)Math.Floor(Math.Min(Math.Min(a.Y, b.Y), c.Y));
-        var ymax = (int)Math.Ceiling(Math.Max(Math.Max(a.Y, b.Y), c.Y));
+        var xmin = (float)Math.Floor(Math.Min(Math.Min(a.X, b.X), c.X));
+        var xmax = (float)Math.Ceiling(Math.Max(Math.Max(a.X, b.X), c.X));
+        var ymin = (float)Math.Floor(Math.Min(Math.Min(a.Y, b.Y), c.Y));
+        var ymax = (float)Math.Ceiling(Math.Max(Math.Max(a.Y, b.Y), c.Y));
 
         double getGamma(double x, double y)
         {
@@ -176,17 +188,18 @@ public class ScreenBuffer(int Columns, int Rows, View Camera)
             return numerator / denominator;
         }
 
-        for (int x = xmin; x < xmax; x++)
+        float stepX = 1 / Columns;
+        float stepY = 1 / Rows;
+        for (float x = xmin; x < xmax; x+=stepX)
         {
-            for(int  y = ymin; y<ymax; y++)
+            for(float y = ymin; y<ymax; y+=stepY)
             {
                 var beta = getBeta(x, y);
                 var gamma = getGamma(x, y);
 
                 if(beta >= 0 && gamma >= 0 && (beta + gamma) <= 1)
-                    PointAt(x, y, Brightness.Bright);
+                    PointAt(x, y, 0, Brightness.Bright);
             }
         }
-
     }
 }

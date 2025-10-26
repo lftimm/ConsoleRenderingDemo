@@ -78,5 +78,4 @@ public partial record struct Matrix4
     }
 
     private static double ToRadians(double angleInDegrees) => angleInDegrees * Math.PI / 180;
-
 }

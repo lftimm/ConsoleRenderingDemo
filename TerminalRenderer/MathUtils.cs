@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace TerminalRenderer;
 
@@ -38,12 +39,12 @@ public record struct Vector3(double X, double Y, double Z)
     );
 }
 
-public partial record struct Matrix4(double[,] values)
+public partial record struct Matrix4(double[,] Values)
 {
     public readonly double this[int row, int col]
     {
-        get => values[row, col];
-        private set => values[row, col] = value;
+        get => Values[row, col];
+        private set => Values[row, col] = value;
     }
 
     public static Matrix4 New(Vector3 r1, Vector3 r2, Vector3 r3) => new(new double[4, 4]
@@ -94,15 +95,20 @@ public partial record struct Matrix4(double[,] values)
     
     public static Matrix4 operator *(double s, Matrix4 m) => m * s;
 
-    public static Matrix4 Chain(params Matrix4[] matrices)
+    /// <summary>
+    /// Multiplies matrices in the correct order (last to first)
+    /// (A, B, C) => A * ( B * C )
+    /// </summary>
+    public static Matrix4 MultiplyInCorrectOrder(params Matrix4[] matrices)
     {
-        if (matrices.Length == 0)
+        if(matrices.Length == 0)
             return Identity();
+        
+        var queue = new Queue<Matrix4>(matrices);
+        var result = queue.Dequeue();
 
-        var result = matrices.Last();
-
-        for (int i = matrices.Length - 2; i >= 0; i--)
-            result *= matrices[i]; 
+        while( queue.Count > 0 )
+            result *= queue.Dequeue();
 
         return result;
     }
