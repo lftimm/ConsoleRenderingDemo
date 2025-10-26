@@ -33,7 +33,7 @@ try
 
     var t1 = new Vector3(-0.5, -0.5, 0);
     var t2 = new Vector3(0.5, -0.5, 0);
-    var t3 = new Vector3(0, 0.5, 0);
+    var t3 = new Vector3(0, 0.5, 0.5);
 
     window.Render(s =>
     {

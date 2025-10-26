@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace TerminalRenderer;
 
@@ -169,10 +170,10 @@ public class ScreenBuffer
 
     public void DrawTriangle(Vector3 a, Vector3 b, Vector3 c)
     {
-        var xmin = (float)Math.Floor(Math.Min(Math.Min(a.X, b.X), c.X));
-        var xmax = (float)Math.Ceiling(Math.Max(Math.Max(a.X, b.X), c.X));
-        var ymin = (float)Math.Floor(Math.Min(Math.Min(a.Y, b.Y), c.Y));
-        var ymax = (float)Math.Ceiling(Math.Max(Math.Max(a.Y, b.Y), c.Y));
+        var xmin = (float)Math.Min(Math.Min(a.X, b.X), c.X);
+        var xmax = (float)Math.Max(Math.Max(a.X, b.X), c.X);
+        var ymin = (float)Math.Min(Math.Min(a.Y, b.Y), c.Y);
+        var ymax = (float)Math.Max(Math.Max(a.Y, b.Y), c.Y);
 
         double getGamma(double x, double y)
         {
@@ -188,17 +189,21 @@ public class ScreenBuffer
             return numerator / denominator;
         }
 
-        float stepX = 1 / Columns;
-        float stepY = 1 / Rows;
-        for (float x = xmin; x < xmax; x+=stepX)
+        float stepX = 1f / Columns;
+        float stepY = 1f / Rows;
+        for (float x = xmin; x <= xmax; x += stepX)
         {
-            for(float y = ymin; y<ymax; y+=stepY)
+            for(float y = ymin; y <= ymax; y += stepY)
             {
                 var beta = getBeta(x, y);
                 var gamma = getGamma(x, y);
+                var alpha = 1 - beta - gamma;
 
-                if(beta >= 0 && gamma >= 0 && (beta + gamma) <= 1)
-                    PointAt(x, y, 0, Brightness.Bright);
+                if (beta >= 0 && gamma >= 0 && (beta + gamma) <= 1)
+                {
+                    var z = alpha * a.Z + beta * b.Z + gamma * c.Z;
+                    PointAt(x, y, z, Brightness.Bright);
+                }
             }
         }
     }
