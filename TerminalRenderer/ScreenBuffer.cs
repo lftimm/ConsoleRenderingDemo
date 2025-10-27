@@ -5,7 +5,7 @@ namespace TerminalRenderer;
 public class ScreenBuffer
 {
     private const float AspectRatio = 2;
-    private const int KernelSize = 3;
+    private const int KernelSize = 2;
     private const int HalfKernelSize = KernelSize / 2;
     public StringBuilder StringBuilder = new ();
     
@@ -24,7 +24,7 @@ public class ScreenBuffer
 
     private Matrix4 CreateOrthogonalProjectionMatrix()
     {
-        var aspectRatioFix = Matrix4.Scale(1/AspectRatio, 1, 1);
+        var aspectRatioFix = Matrix4.Scale(1 / AspectRatio, 1, 1) * Matrix4.Displace(Columns / AspectRatio, 0, 0);
 
         var l = -1f;
         var r = 1f;
@@ -71,7 +71,7 @@ public class ScreenBuffer
 
     private void ApplyBlur()
     {
-        var temp = Screen;
+        var temp = new Pixel[Rows,Columns];
 
         for(int r = 0; r < Rows; r++)
         {
@@ -131,9 +131,8 @@ public class ScreenBuffer
 
     public void PointAt(Vector3 vec, Brightness brightness) 
     {
-        var newVec = OrthogonalMatrix * vec;
-        var screenX= (int)Math.Clamp(Math.Round(newVec.X), 0, Columns-1);
-        var screenY= (int)Math.Clamp(Math.Round(newVec.Y),0, Rows-1);
+        var screenX= (int)Math.Clamp(Math.Round(vec.X), 0, Columns-1);
+        var screenY= (int)Math.Clamp(Math.Round(vec.Y),0, Rows-1);
         Screen[screenY, screenX] = new ((int)brightness);  
     }
 
@@ -143,32 +142,12 @@ public class ScreenBuffer
         PointAt(vec, brightness);
     }
 
-    public void LineFromTo(Vector3 v1, Vector3 v2) => LineFromTo(v1.X, v1.Y, v2.X, v2.Y);
-
-    public void LineFromTo(double x0, double y0, double x1, double y1)
-    {
-        var v0 = new Vector3(x0, y0, 0);
-        var v1 = new Vector3(x1, y1, 0);
-
-        Vector3 parametricLineEquation(double t) => v0 + t * (v1 - v0);
-
-        var x = x0;
-        var step = 5e-1;
-
-        while(x < x1)
-        {
-            var t = (x - x0)/(x1- x0);
-
-            var v = parametricLineEquation(t);
-
-            PointAt(v.X, v.Y, 0, Brightness.Bright);
-
-            x += step;
-        }
-    }
-
     public void DrawTriangle(Vector3 a, Vector3 b, Vector3 c)
     {
+        a = OrthogonalMatrix * a;
+        b = OrthogonalMatrix * b;
+        c = OrthogonalMatrix * c;
+            
         var xmin = (float)Math.Min(Math.Min(a.X, b.X), c.X);
         var xmax = (float)Math.Max(Math.Max(a.X, b.X), c.X);
         var ymin = (float)Math.Min(Math.Min(a.Y, b.Y), c.Y);
@@ -188,8 +167,8 @@ public class ScreenBuffer
             return numerator / denominator;
         }
 
-        float stepX = 1f / Columns;
-        float stepY = 1f / Rows;
+        float stepX = .5f;
+        float stepY = .5f;
         for (float x = xmin; x <= xmax; x += stepX)
         {
             for(float y = ymin; y <= ymax; y += stepY)

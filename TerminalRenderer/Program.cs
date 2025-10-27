@@ -27,30 +27,18 @@ try
 
     var window = new Window(x,y);
 
-
-    var t1 = new Vector3(-0.5, 0.5, 0);
-    var t2 = new Vector3(-0.5, -0.5, 0);
-    var t3 = new Vector3(0.5, -0.5, 0);
-    var t4 = new Vector3(0.5, 0.5, 0);
-
-
-    var stopwatch = Stopwatch.StartNew();
     var rotationSpeed = 45.0;
-    window.Render(s =>
+    var trans = Matrix4.Displace(0, -0.75, 0) *
+                Matrix4.Scale(.30f, .30f, .30f);
+    
+    var teapot = ObjImporter.Read(@"C:\Users\lftim\Source\Repos\ConsoleRenderingDemo\TerminalRenderer\teapot.obj")
+        .Select(x => (trans * x.Item1, trans * x.Item2, trans * x.Item3)).ToList(); 
+
+    window.Render((s, t) =>
     {
-        var time = stopwatch.Elapsed.TotalSeconds;
-
-        var angle = time * rotationSpeed;
-
-        var rotation = Matrix4.Rotate(Axis.Y, angle);
-
-        var r1 = rotation * t1;
-        var r2 = rotation * t2;
-        var r3 = rotation * t3;
-        var r4 = rotation * t4;
-
-        s.DrawTriangle(r1, r2, r3);
-        s.DrawTriangle(r3, r4, r1);
+        var rotation = Matrix4.Rotate(Axis.Y, (float)(rotationSpeed * t)) * Matrix4.Rotate(Axis.Z, (float)(rotationSpeed * t));
+        foreach (var v in teapot)
+            s.DrawTriangle(rotation * v.Item1, rotation * v.Item2, rotation * v.Item3);
     });
 
 } catch (Exception ex)
