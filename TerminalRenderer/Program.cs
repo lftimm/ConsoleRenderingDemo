@@ -42,7 +42,7 @@ try
 
         var angle = time * rotationSpeed;
 
-        var rotation = Matrix4.Rotate(Axis.Y, angle);
+        var rotation = Matrix4.Rotate(Axis.Z, angle);
 
         var r1 = rotation * t1;
         var r2 = rotation * t2;

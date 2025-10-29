@@ -71,7 +71,7 @@ public class ScreenBuffer
 
     private void ApplyBlur()
     {
-        var temp = Screen;
+        var temp = new Pixel[Rows,Columns];
 
         for(int r = 0; r < Rows; r++)
         {
@@ -106,7 +106,7 @@ public class ScreenBuffer
             sum += brightnessGet(indexToCheck) * (1.0 / KernelSize);
         }
     
-        return (int)Math.Floor(sum);
+        return (int)Math.Round(sum);
     }
 
     private Pixel GetPixelIn(int r, int c) => Screen[r, c];
