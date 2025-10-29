@@ -1,18 +1,21 @@
-﻿namespace TerminalRenderer;
+﻿using System.Diagnostics;
+
+namespace TerminalRenderer;
 
 public class Window(int Columns, int Rows)
 {
-    public const int SleepTime = 17;
+    public const double FrameTime = 1000/100;
     public ScreenBuffer Screen { get; init; } = new (Columns, Rows);
 
-    public void Render(Action<ScreenBuffer> drawActions)
+    public void Render(Action<ScreenBuffer, double> drawActions)
     {
         Console.CursorVisible = false;
 
-        while(true)
+        var stopwatch = Stopwatch.StartNew();
+        while (true)
         {
-            Screen.Draw(drawActions);
-            Thread.Sleep(SleepTime);
+            var frameStart = stopwatch.Elapsed.TotalMilliseconds;
+            Screen.Draw(s => drawActions(s, frameStart/1000));
         }
     }
 }
