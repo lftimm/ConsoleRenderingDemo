@@ -104,6 +104,9 @@ public partial record struct Matrix4(float[,] Values)
         if(matrices.Length == 0)
             return Identity();
         
+        if(matrices.Length == 1)
+            return matrices[0];
+
         var queue = new Queue<Matrix4>(matrices);
         var result = queue.Dequeue();
 

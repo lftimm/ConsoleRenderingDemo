@@ -6,7 +6,6 @@ public struct Pixel
     public int Brightness { get;  }
     public char Display { get; }
 
-    public Pixel(Brightness brightness) => new Pixel((int)brightness);
     public Pixel(int brightness)
     {
         Brightness = brightness;
@@ -14,4 +13,6 @@ public struct Pixel
 
         Display = Map[Math.Clamp(brightnessPos, 0, Map.Length-1)];
     }
+
+    public static Pixel WithBrightness(Brightness brightness) => new ((int)brightness);
 }

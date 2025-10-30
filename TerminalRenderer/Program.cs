@@ -31,15 +31,16 @@ try
         new Vector3(0.5f, -0.5f, 0),
         new Vector3(0.0f, 0.5f, 0)
     );
-    
-    window.RenderScene(new Triangle[] { triangle });
+
+    var trans = Matrix4.Displace(0, -0.75f, 0) * Matrix4.Scale(.30f, .30f, .30f);
+    var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\teapot.obj")
+        ;
+        //.Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C)).ToArray();
+       
+    window.RenderScene(teapot);
 
     //var rotationSpeed = 45.0;
-    //var trans = Matrix4.Displace(0, -0.75, 0) *
-    //            Matrix4.Scale(.30f, .30f, .30f);
 
-    //var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\teapot.obj")
-    //    .Select(x => (trans * x.Item1, trans * x.Item2, trans * x.Item3)).ToList(); 
 
     //window.Render((s, t) =>
     //{

@@ -1,8 +1,8 @@
 ﻿namespace TerminalRenderer;
 public class Renderer
 {
-    private Matrix4 ProjectionMatrix { get; }
-    private float AspectRatio { get; } = 1.0f / 1.0f;
+    public Matrix4 ProjectionMatrix { get; }
+    private float AspectRatio { get; } = 2f;
     private int Width { get; }
     private int Height { get; }
 
@@ -46,12 +46,11 @@ public class Renderer
                 GenerateTriangleCoordinates(a, b, c, stepX, stepY);
 
             // Fragment shader
-            var brightnessValues = new List<int>();
+            var brightnessValues = new List<Brightness>();
             for (int i = 0; i < triangleCoords.Count; i += 3)
             {
                 var z = triangleCoords[i + 2];
-                var brightness = (int)(Math.Clamp(z, -1, 1) * 10 + 10);
-                brightnessValues.Add(brightness);
+                brightnessValues.Add(Brightness.Bright);
             }
 
             /// Wrap
@@ -60,10 +59,8 @@ public class Renderer
                 var x = (int)triangleCoords[i];
                 var y = (int)triangleCoords[i + 1];
                 var brightness = brightnessValues[i / 3];
-                if (x >= 0 && x < Width && y >= 0 && y < Height)
-                {
-                    buffer.SetPixel(x, y, new Pixel(brightness));
-                }
+                var pixel = Pixel.WithBrightness(brightness);
+                buffer.SetPixel(x, y, pixel); 
             }
         }
     }

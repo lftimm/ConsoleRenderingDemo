@@ -15,11 +15,16 @@ public class FrameBuffer
     }
 
     public Pixel GetPixel(int x, int y) => _buffer[x+y*Width];
-    public void SetPixel(int x, int y, Pixel pix) => _buffer[x+y*Width] = pix;
+    public void SetPixel(int x, int y, Pixel pix)
+    {
+        if(x < 0 || x >= Width || y < 0 || y >= Height)
+            return;
+        _buffer[x + y * Width] = pix;
+    }
 
     public void Clear(Brightness brightness)
     {
         for(int i = 0; i < _buffer.Length; i++)
-            _buffer[i] = new Pixel(brightness); 
+            _buffer[i] = Pixel.WithBrightness(brightness); 
     }
 }
