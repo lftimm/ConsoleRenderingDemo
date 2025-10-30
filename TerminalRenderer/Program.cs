@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using TerminalRenderer;
+﻿using TerminalRenderer;
 
 /*
 This code is my companion to reading Peter Shirley's Fundamentals of Computer Graphics
@@ -27,19 +26,27 @@ try
 
     var window = new Window(x,y);
 
-    var rotationSpeed = 45.0;
-    var trans = Matrix4.Displace(0, -0.75, 0) *
-                Matrix4.Scale(.30f, .30f, .30f);
+    var triangle = new Triangle(
+        new Vector3(-0.5f, -0.5f, 0),
+        new Vector3(0.5f, -0.5f, 0),
+        new Vector3(0.0f, 0.5f, 0)
+    );
     
-    var teapot = ObjImporter.Read(@"C:\Users\lftim\Source\Repos\ConsoleRenderingDemo\TerminalRenderer\teapot.obj")
-        .Select(x => (trans * x.Item1, trans * x.Item2, trans * x.Item3)).ToList(); 
+    window.RenderScene(new Triangle[] { triangle });
 
-    window.Render((s, t) =>
-    {
-        var rotation = Matrix4.Rotate(Axis.Y, (float)(rotationSpeed * t)) * Matrix4.Rotate(Axis.Z, (float)(rotationSpeed * t));
-        foreach (var v in teapot)
-            s.DrawTriangle(rotation * v.Item1, rotation * v.Item2, rotation * v.Item3);
-    });
+    //var rotationSpeed = 45.0;
+    //var trans = Matrix4.Displace(0, -0.75, 0) *
+    //            Matrix4.Scale(.30f, .30f, .30f);
+
+    //var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\teapot.obj")
+    //    .Select(x => (trans * x.Item1, trans * x.Item2, trans * x.Item3)).ToList(); 
+
+    //window.Render((s, t) =>
+    //{
+    //    var rotation = Matrix4.Rotate(Axis.Y, (float)(rotationSpeed * t)) * Matrix4.Rotate(Axis.Z, (float)(rotationSpeed * t));
+    //    foreach (var v in teapot)
+    //        s.DrawTriangle(rotation * v.Item1, rotation * v.Item2, rotation * v.Item3);
+    //});
 
 } catch (Exception ex)
 {

@@ -1,8 +1,8 @@
 ﻿namespace TerminalRenderer;
 public struct Pixel
 {
-    public static int BrightnessLevels = Enum.GetValues(typeof(Brightness)).Length -1;
-    public static char[] Map = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ".Reverse().ToArray();
+    private static readonly char[] Map = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ".Reverse().ToArray();
+    private static readonly int BrightnessLevels = Enum.GetValues(typeof(Brightness)).Length -1;
     public int Brightness { get;  }
     public char Display { get; }
 
