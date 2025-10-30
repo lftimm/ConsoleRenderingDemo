@@ -34,8 +34,7 @@ try
 
     var trans = Matrix4.Displace(0, -0.75f, 0) * Matrix4.Scale(.30f, .30f, .30f);
     var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\teapot.obj")
-        ;
-        //.Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C)).ToArray();
+        .Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C)).ToArray();
        
     window.RenderScene(teapot);
 

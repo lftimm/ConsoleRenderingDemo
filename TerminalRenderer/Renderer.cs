@@ -46,11 +46,12 @@ public class Renderer
                 GenerateTriangleCoordinates(a, b, c, stepX, stepY);
 
             // Fragment shader
-            var brightnessValues = new List<Brightness>();
+            var brightnessValues = new List<int>();
             for (int i = 0; i < triangleCoords.Count; i += 3)
             {
                 var z = triangleCoords[i + 2];
-                brightnessValues.Add(Brightness.Bright);
+                var brightness = (int)(Math.Clamp(z, -1, 1) * 10 + 10);
+                brightnessValues.Add(brightness);
             }
 
             /// Wrap
@@ -59,7 +60,7 @@ public class Renderer
                 var x = (int)triangleCoords[i];
                 var y = (int)triangleCoords[i + 1];
                 var brightness = brightnessValues[i / 3];
-                var pixel = Pixel.WithBrightness(brightness);
+                var pixel = new Pixel(brightness);
                 buffer.SetPixel(x, y, pixel); 
             }
         }
