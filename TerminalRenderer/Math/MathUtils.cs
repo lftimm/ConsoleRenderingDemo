@@ -17,19 +17,19 @@ public enum Plane
     YZ
 }
 
-public record struct Vector3(double X, double Y, double Z) 
+public record struct Vector3(float X, float Y, float Z) 
 {
-    public double Dot(Vector3 v2) => X * v2.X + Y * v2.Y + Z * v2.Z;
+    public float Dot(Vector3 v2) => X * v2.X + Y * v2.Y + Z * v2.Z;
     public Vector3 Cross(Vector3 v2) => new(
             Y * v2.Z - Z * v2.Y,
             Z * v2.X - X * v2.Z,
             X * v2.Y - Y * v2.X
     );
-    public static double Length(Vector3 v) => Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+    public static float Length(Vector3 v) => (float)Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
     public static Vector3 Normalize(Vector3 v) => v / Length(v);
-    public static Vector3 operator *(Vector3 v1, double s) => new(s * v1.X, s * v1.Y, s * v1.Z);
-    public static Vector3 operator *(double s, Vector3 v1) => v1 * s;
-    public static Vector3 operator /(Vector3 v1, double s) => v1 * (1 / s);
+    public static Vector3 operator *(Vector3 v1, float s) => new(s * v1.X, s * v1.Y, s * v1.Z);
+    public static Vector3 operator *(float s, Vector3 v1) => v1 * s;
+    public static Vector3 operator /(Vector3 v1, float s) => v1 * (1 / s);
     public static Vector3 operator +(Vector3 v1, Vector3 v2) => new(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
     public static Vector3 operator -(Vector3 v1, Vector3 v2) => new(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
     public static Vector3 operator *(Matrix4 m, Vector3 v) => new(
@@ -39,15 +39,15 @@ public record struct Vector3(double X, double Y, double Z)
     );
 }
 
-public partial record struct Matrix4(double[,] Values)
+public partial record struct Matrix4(float[,] Values)
 {
-    public readonly double this[int row, int col]
+    public readonly float this[int row, int col]
     {
         get => Values[row, col];
         private set => Values[row, col] = value;
     }
 
-    public static Matrix4 New(Vector3 r1, Vector3 r2, Vector3 r3) => new(new double[4, 4]
+    public static Matrix4 New(Vector3 r1, Vector3 r2, Vector3 r3) => new(new float[4, 4]
     {
         { r1.X, r1.Y, r1.Z, 0},
         { r2.X, r2.Y, r2.Z, 0},
@@ -55,7 +55,7 @@ public partial record struct Matrix4(double[,] Values)
         {0,     0,     0,   1}
     });
 
-    public static Matrix4 Identity() => new(new double[4, 4]
+    public static Matrix4 Identity() => new(new float[4, 4]
     {
         {1, 0, 0, 0},
         {0, 1, 0, 0},
@@ -65,7 +65,7 @@ public partial record struct Matrix4(double[,] Values)
 
     public static Matrix4 operator *(Matrix4 m1, Matrix4 m2)
     {
-        var result = new double[4, 4];
+        var result = new float[4, 4];
         for (int row = 0; row < 4; row++)
         {
             for (int col = 0; col < 4; col++)
@@ -80,9 +80,9 @@ public partial record struct Matrix4(double[,] Values)
         return new Matrix4(result);
     }
 
-    public static Matrix4 operator *(Matrix4 m, double s)
+    public static Matrix4 operator *(Matrix4 m, float s)
     {
-        var result = new double[4, 4];
+        var result = new float[4, 4];
         for (int row = 0; row < 4; row++)
         {
             for (int col = 0; col < 4; col++)
@@ -93,7 +93,7 @@ public partial record struct Matrix4(double[,] Values)
         return new Matrix4(result);
     }
     
-    public static Matrix4 operator *(double s, Matrix4 m) => m * s;
+    public static Matrix4 operator *(float s, Matrix4 m) => m * s;
 
     /// <summary>
     /// Multiplies matrices in the correct order (last to first)
@@ -104,6 +104,9 @@ public partial record struct Matrix4(double[,] Values)
         if(matrices.Length == 0)
             return Identity();
         
+        if(matrices.Length == 1)
+            return matrices[0];
+
         var queue = new Queue<Matrix4>(matrices);
         var result = queue.Dequeue();
 

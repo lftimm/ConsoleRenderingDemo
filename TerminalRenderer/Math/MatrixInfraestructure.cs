@@ -2,7 +2,7 @@
 
 public partial record struct Matrix4
 {
-    public static Matrix4 Displace(double dx, double dy, double dz)
+    public static Matrix4 Displace(float dx, float dy, float dz)
     {
         var m = Identity();
         m[0, 3] = dx;
@@ -11,7 +11,7 @@ public partial record struct Matrix4
         return m;
     }
 
-    public static Matrix4 Scale(double sx, double sy, double sz)
+    public static Matrix4 Scale(float sx, float sy, float sz)
     {
         var m = Identity();
         m[0, 0] = sx;
@@ -20,17 +20,17 @@ public partial record struct Matrix4
         return m;
     }
 
-    public static Matrix4 Rotate(Axis axis, double angleInDegrees)
+    public static Matrix4 Rotate(Axis axis, float angleInDegrees)
     {
         var m = Identity();
         var inRads = ToRadians(angleInDegrees);
-        var cos = Math.Cos(inRads);
-        var sin = Math.Sin(inRads);
+        var cos = MathF.Cos(inRads);
+        var sin = MathF.Sin(inRads);
 
         switch (axis)
         {
             case Axis.X:
-                m[1,1] = cos;
+                m[1, 1] = cos;
                 m[1, 2] = -sin;
                 m[2, 1] = sin;
                 m[2, 2] = cos;
@@ -52,9 +52,9 @@ public partial record struct Matrix4
         return m;
     }
 
-    public static Matrix4 Sheer(Plane plane, double amount)
+    public static Matrix4 Sheer(Plane plane, float amount)
     {
-        var m  = Identity();
+        var m = Identity();
 
         switch (plane)
         {
@@ -77,5 +77,5 @@ public partial record struct Matrix4
         return m;
     }
 
-    private static double ToRadians(double angleInDegrees) => angleInDegrees * Math.PI / 180;
+    private static float ToRadians(float angleInDegrees) => angleInDegrees * MathF.PI / 180;
 }

@@ -2,7 +2,7 @@
 
 public class ObjImporter
 {
-    public static List<(Vector3, Vector3, Vector3)> Read(string filePath)
+    public static Triangle[] Read(string filePath)
     {
         List<string> file = File.ReadAllLines(filePath).ToList();
 
@@ -22,7 +22,7 @@ public class ObjImporter
             })
             .ToList();
 
-        List<(Vector3, Vector3, Vector3)> triangles = file
+        var triangles = file
             .Where(x => x.StartsWith("f "))
             .Select(x =>
             {
@@ -30,8 +30,8 @@ public class ObjImporter
                 var v1Index = int.Parse(parts[1]) - 1;
                 var v2Index = int.Parse(parts[2]) - 1;
                 var v3Index = int.Parse(parts[3]) - 1;
-                return (vertices[v1Index], vertices[v2Index], vertices[v3Index]);
-            }).ToList();
+                return new Triangle(vertices[v1Index], vertices[v2Index], vertices[v3Index]);
+            }).ToArray();
 
         return triangles;
     }

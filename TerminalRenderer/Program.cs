@@ -4,41 +4,37 @@
 This code is my companion to reading Peter Shirley's Fundamentals of Computer Graphics
 It's a simple library for drawing and rendering to Console.
 
-Stuff i worked with so far:
+Some things i did here:
 
-- Rendering Loop, with double buffering and basic brightness levels
-- Rendering 2D Points, Lines and Triangles using their respective equations
-- Postprocessing with a simple box blur filter, appling convolution
-- OOP Modeling with Vector3, Matrix4, Axis, Plane, Window, ScreenBuffer etc.
-- 3D Transformations: Translation, Scaling, Rotation, Sheering
-- Canonical Matrix to map from world coordinates to screen coordinates
+- OpenGL-like rendering pipeline (Vertex, Tesselation, Fragment)
+- Triangle Rasterization using Barycentric Coordinates
+- Linear Alegbra Infraestructure, Matrix4 and Vector3 
+- Post processing with box filter
+- Clean architecture respecting SRP and DI
+- Obj rendering
 
-----------------------------------------------------------------------------
+---------------------------------------------------------------------
 When using it be mindful to your terminal's fontsize and window size.
 Enjoy !!
-
 */
+
 
 try
 {
+    var trans = Matrix4.Displace(0, -0.75f, 0) * Matrix4.Scale(.30f, .30f, .30f);
+    var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\teapot.obj")
+        .Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C))
+        .ToArray();
+
     var x = Console.WindowWidth;
     var y = Console.WindowHeight-1;
 
-    var window = new Window(x,y);
-
-    List<Vector3> triangle = [
-        new Vector3(0, 1, 0),
-        new Vector3(-1, -1, 0),
-        new Vector3(1, -1, 0)
-    ];
-
-    window.Render((s, t) =>
+    var window = new ConsoleEngine(x,y);
+    var rotationSpeed = 45.0f;
+    window.RenderScene((t) =>
     {
-        s.DrawTriangle(
-            triangle[0],
-            triangle[1],
-            triangle[2]
-        );
+        var rotate = Matrix4.Rotate(Axis.Y, rotationSpeed * t) * (Matrix4.Rotate(Axis.Z, rotationSpeed * t));
+        return teapot.Select(x => new Triangle(rotate * x.A, rotate * x.B, rotate * x.C)).ToArray();
     });
 
 } catch (Exception ex)
