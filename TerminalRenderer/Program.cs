@@ -4,49 +4,38 @@
 This code is my companion to reading Peter Shirley's Fundamentals of Computer Graphics
 It's a simple library for drawing and rendering to Console.
 
-Stuff i worked with so far:
+Some things i did here:
 
-- Rendering Loop, with double buffering and basic brightness levels
-- Rendering 2D Points, Lines and Triangles using their respective equations
-- Postprocessing with a simple box blur filter, appling convolution
-- OOP Modeling with Vector3, Matrix4, Axis, Plane, Window, ScreenBuffer etc.
-- 3D Transformations: Translation, Scaling, Rotation, Sheering
-- Canonical Matrix to map from world coordinates to screen coordinates
+- OpenGL-like rendering pipeline (Vertex, Tesselation, Fragment)
+- Triangle Rasterization using Barycentric Coordinates
+- Linear Alegbra Infraestructure, Matrix4 and Vector3 
+- Post processing with box filter
+- Clean architecture respecting SRP and DI
+- Obj rendering
 
-----------------------------------------------------------------------------
+---------------------------------------------------------------------
 When using it be mindful to your terminal's fontsize and window size.
 Enjoy !!
-
 */
+
 
 try
 {
+    var trans = Matrix4.Displace(0, -0.75f, 0) * Matrix4.Scale(.30f, .30f, .30f);
+    var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\teapot.obj")
+        .Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C))
+        .ToArray();
+
     var x = Console.WindowWidth;
     var y = Console.WindowHeight-1;
 
-    var window = new Window(x,y);
-
-    var triangle = new Triangle(
-        new Vector3(-0.5f, -0.5f, 0),
-        new Vector3(0.5f, -0.5f, 0),
-        new Vector3(0.0f, 0.5f, 0)
-    );
-
-    var trans = Matrix4.Displace(0, -0.75f, 0) * Matrix4.Scale(.30f, .30f, .30f);
-    var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\teapot.obj")
-        .Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C)).ToArray();
-       
-    window.RenderScene(teapot);
-
-    //var rotationSpeed = 45.0;
-
-
-    //window.Render((s, t) =>
-    //{
-    //    var rotation = Matrix4.Rotate(Axis.Y, (float)(rotationSpeed * t)) * Matrix4.Rotate(Axis.Z, (float)(rotationSpeed * t));
-    //    foreach (var v in teapot)
-    //        s.DrawTriangle(rotation * v.Item1, rotation * v.Item2, rotation * v.Item3);
-    //});
+    var window = new ConsoleEngine(x,y);
+    var rotationSpeed = 45.0f;
+    window.RenderScene((t) =>
+    {
+        var rotate = Matrix4.Rotate(Axis.Y, rotationSpeed * t) * (Matrix4.Rotate(Axis.Z, rotationSpeed * t));
+        return teapot.Select(x => new Triangle(rotate * x.A, rotate * x.B, rotate * x.C)).ToArray();
+    });
 
 } catch (Exception ex)
 {

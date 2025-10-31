@@ -23,10 +23,8 @@ public class Renderer
         return aspectRatioFix;
     }
 
-    public void Render(FrameBuffer buffer, Triangle[] triangles)
+    public void Render(FrameBuffer buffer, Triangle triangle)
     {
-        if(triangles.Length == 0)
-            return;
     
         if(buffer.Width != Width || buffer.Height != Height)
             throw new ArgumentException("FrameBuffer size does not match Renderer size.");
@@ -34,36 +32,34 @@ public class Renderer
         var stepX = .5f;
         var stepY = .5f;
 
-        foreach (var t in triangles)
+        // Vertex shader 
+        var a = ProjectionMatrix * triangle.A;
+        var b = ProjectionMatrix * triangle.B;
+        var c = ProjectionMatrix * triangle.C;
+
+        // Tesselation
+        var triangleCoords = 
+            GenerateTriangleCoordinates(a, b, c, stepX, stepY);
+
+        // Fragment shader
+        var brightnessValues = new List<int>();
+        for (int i = 0; i < triangleCoords.Count; i += 3)
         {
-            // Vertex shader 
-            var a = ProjectionMatrix * t.A;
-            var b = ProjectionMatrix * t.B;
-            var c = ProjectionMatrix * t.C;
-
-            // Tesselation
-            var triangleCoords = 
-                GenerateTriangleCoordinates(a, b, c, stepX, stepY);
-
-            // Fragment shader
-            var brightnessValues = new List<int>();
-            for (int i = 0; i < triangleCoords.Count; i += 3)
-            {
-                var z = triangleCoords[i + 2];
-                var brightness = (int)(Math.Clamp(z, -1, 1) * 10 + 10);
-                brightnessValues.Add(brightness);
-            }
-
-            /// Wrap
-            for(int i = 0; i < triangleCoords.Count; i += 3)
-            {
-                var x = (int)triangleCoords[i];
-                var y = (int)triangleCoords[i + 1];
-                var brightness = brightnessValues[i / 3];
-                var pixel = new Pixel(brightness);
-                buffer.SetPixel(x, y, pixel); 
-            }
+            var z = triangleCoords[i + 2];
+            var brightness = (int)(Math.Clamp(z, -1, 1) * 10 + 10);
+            brightnessValues.Add(brightness);
         }
+
+        /// Wrap
+        for(int i = 0; i < triangleCoords.Count; i += 3)
+        {
+            var x = (int)triangleCoords[i];
+            var y = (int)triangleCoords[i + 1];
+            var brightness = brightnessValues[i / 3];
+            var pixel = new Pixel(brightness);
+            buffer.SetPixel(x, y, pixel); 
+        }
+        
     }
 
     private Matrix4 CreateOrthogonalProjectionMatrix()

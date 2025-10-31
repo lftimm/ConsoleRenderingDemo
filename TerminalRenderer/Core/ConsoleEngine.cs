@@ -3,37 +3,40 @@ using System.Text;
 
 namespace TerminalRenderer;
 
-public class Window
+public class ConsoleEngine
 {
     public const double FrameTime = 1000.0/100;
     private FrameBuffer Buffer { get; }
     private Renderer Renderer { get; }
+    private PostProcess PostProcess{ get; }
     private StringBuilder StringBuilder { get; }
 
-    public Window(int width, int height)
+    public ConsoleEngine(int width, int height)
     {
         Console.CursorVisible = false;
         Buffer = new FrameBuffer(width, height);
         Renderer = new Renderer(width, height);
+        PostProcess = new PostProcess();
         StringBuilder = new StringBuilder();
     }
 
-    public void RenderScene(Triangle[] triangles)
+    public void RenderScene(Func<float, Triangle[]> draw)
     {
         var watch = Stopwatch.StartNew();
         while (true)
         {
             Buffer.Clear(Brightness.Dark);
             StringBuilder.Clear();
-            Renderer.Render(Buffer, triangles);
+
+            Parallel.ForEach(draw((float)watch.Elapsed.TotalMilliseconds/1000),(t) => Renderer.Render(Buffer, t));
+
+            PostProcess.Apply(Buffer);
+
             DisplayBuffer();
 
             var frameTime = watch.ElapsedMilliseconds;
             if (frameTime < FrameTime)
                 Thread.Sleep((int)(FrameTime - frameTime));
-
-
-            watch.Restart();
         }
     }
 
