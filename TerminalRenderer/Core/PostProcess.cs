@@ -14,7 +14,6 @@ public class PostProcess
 
         ApplyVerticalBuffer(temp, buffer);
 
-        FrameBuffer.Copy(temp, buffer);
     }
 
     private void ApplyHorizontalBuffer(FrameBuffer source, FrameBuffer target)

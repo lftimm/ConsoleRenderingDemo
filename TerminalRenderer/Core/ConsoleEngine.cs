@@ -28,15 +28,11 @@ public class ConsoleEngine
             Buffer.Clear(Brightness.Dark);
             StringBuilder.Clear();
 
-            Parallel.ForEach(draw((float)watch.Elapsed.TotalMilliseconds/1000),(t) => Renderer.Render(Buffer, t));
+            Parallel.ForEach(draw((float)watch.Elapsed.TotalSeconds),(t) => Renderer.Render(Buffer, t));
 
             PostProcess.Apply(Buffer);
 
             DisplayBuffer();
-
-            var frameTime = watch.ElapsedMilliseconds;
-            if (frameTime < FrameTime)
-                Thread.Sleep((int)(FrameTime - frameTime));
         }
     }
 
