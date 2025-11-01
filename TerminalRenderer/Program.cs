@@ -16,6 +16,8 @@ Some things i did here:
 ---------------------------------------------------------------------
 When using it be mindful to your terminal's fontsize and window size.
 Enjoy !!
+
+Note: If anyone ever touches this again, consider rewriting the math classes to use System.Numerics.
 */
 
 
@@ -23,7 +25,7 @@ try
 {
     var trans = Matrix4.Displace(0, -0.75f, 0f) * Matrix4.Scale(.30f, .30f, .30f);
     var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\teapot.obj")
-        .Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C))
+        .Select(x => new Triangle(trans.Transform(x.A), trans.Transform(x.B), trans.Transform(x.C)))
         .ToArray();
 
     var x = Console.WindowWidth;
@@ -34,7 +36,7 @@ try
     window.RenderScene((t) =>
     {
         var rotate = Matrix4.Rotate(Axis.Y, rotationSpeed * t) * (Matrix4.Rotate(Axis.Z, rotationSpeed * t));
-        return teapot.Select(x => new Triangle(rotate * x.A, rotate * x.B, rotate * x.C)).ToArray();
+        return teapot.Select(x => new Triangle(rotate.Transform(x.A), rotate.Transform(x.B), rotate.Transform(x.C))).ToArray();
     });
 
 } catch (Exception ex)

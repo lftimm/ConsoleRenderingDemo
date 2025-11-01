@@ -15,8 +15,26 @@ public class Renderer
 
         var orthogonalMatrix = CreateOrthogonalProjectionMatrix();
         var aspectRatioFix = CreateAspectRatioProjectionMatrix();
+        var pespectiveMatrix = CreatePerspectiveProjectionMatrix();
+
         ProjectionMatrix = 
-            Matrix4.MultiplyInCorrectOrder(aspectRatioFix,orthogonalMatrix, ViewMatrix);
+            Matrix4.MultiplyInCorrectOrder(aspectRatioFix, orthogonalMatrix, ViewMatrix);
+    }
+
+    private Matrix4 CreatePerspectiveProjectionMatrix()
+    {
+        var n = 1f;
+        var f = -1f;
+
+        var m = new Matrix4(new float[4, 4]
+        {
+            {n,0f,0f,0f},
+            {0f,n,0f,0f},
+            {0f,0f,n+f,-f*n},
+            {0f,0f,1f,0f}
+        });
+
+        return m;
     }
 
     private Matrix4 CreateAspectRatioProjectionMatrix()
@@ -36,9 +54,9 @@ public class Renderer
         var stepY = .5f;
 
         // Vertex shader 
-        var a = ProjectionMatrix * triangle.A;
-        var b = ProjectionMatrix * triangle.B;
-        var c = ProjectionMatrix * triangle.C;
+        var a = ProjectionMatrix.Transform(triangle.A);
+        var b = ProjectionMatrix.Transform(triangle.B);
+        var c = ProjectionMatrix.Transform(triangle.C);
 
         // Tesselation
         var triangleCoords = 

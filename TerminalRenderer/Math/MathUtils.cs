@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
-
-namespace TerminalRenderer;
+﻿namespace TerminalRenderer;
 
 public enum Axis
 {
@@ -17,8 +14,21 @@ public enum Plane
     YZ
 }
 
+public record struct Vector4(float X, float Y, float Z, float H)
+{
+    public Vector4 Homogenize() => new(X / H, Y / H, Z / H, 1f);
+    public Vector3 Reduce() => new(X, Y, Z);
+    public static Vector4 operator *(Matrix4 m, Vector4 v) => new(
+            m[0, 0] * v.X + m[0, 1] * v.Y + m[0, 2] * v.Z + m[0, 3] * v.H,
+            m[1, 0] * v.X + m[1, 1] * v.Y + m[1, 2] * v.Z + m[1, 3] * v.H,
+            m[2, 0] * v.X + m[2, 1] * v.Y + m[2, 2] * v.Z + m[2, 3] * v.H,
+            m[3, 0] * v.X + m[3, 1] * v.Y + m[3, 2] * v.Z + m[3, 3] * v.H
+    );
+}
+
 public record struct Vector3(float X, float Y, float Z) 
 {
+    public Vector4 Extend(int h=1) => new Vector4(X,Y,Z,h);
     public float Dot(Vector3 v2) => X * v2.X + Y * v2.Y + Z * v2.Z;
     public Vector3 Cross(Vector3 v2) => new(
             Y * v2.Z - Z * v2.Y,
@@ -32,11 +42,6 @@ public record struct Vector3(float X, float Y, float Z)
     public static Vector3 operator /(Vector3 v1, float s) => v1 * (1 / s);
     public static Vector3 operator +(Vector3 v1, Vector3 v2) => new(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
     public static Vector3 operator -(Vector3 v1, Vector3 v2) => new(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
-    public static Vector3 operator *(Matrix4 m, Vector3 v) => new(
-            m[0, 0] * v.X + m[0, 1] * v.Y + m[0, 2] * v.Z + m[0, 3] * 1,
-            m[1, 0] * v.X + m[1, 1] * v.Y + m[1, 2] * v.Z + m[1, 3] * 1,
-            m[2, 0] * v.X + m[2, 1] * v.Y + m[2, 2] * v.Z + m[2, 3] * 1
-    );
 }
 
 public partial record struct Matrix4(float[,] Values)
@@ -62,6 +67,8 @@ public partial record struct Matrix4(float[,] Values)
         {0, 0, 1, 0},
         {0, 0, 0, 1}
     });
+
+    public Vector3 Transform(Vector3 v) => (this * v.Extend()).Reduce();
 
     public static Matrix4 operator *(Matrix4 m1, Matrix4 m2)
     {
