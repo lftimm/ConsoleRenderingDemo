@@ -2,7 +2,7 @@
 
 public class PostProcess
 {
-    public int KernelSize = 5;
+    public int KernelSize = 3;
     public int HalfKernelSize => (int)(KernelSize / 2);
 
 

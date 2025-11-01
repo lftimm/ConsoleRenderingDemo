@@ -1,8 +1,13 @@
 ﻿
 namespace TerminalRenderer;
-public class View(Vector3 Eye, Vector3 Gaze, Vector3 Up)
+public class View
 {
-    public Matrix4 Transform = CreateViewMatrix(Eye, Gaze, Up);
+    public Matrix4 Transform { get; }
+
+    public View(Vector3 e, Vector3 g, Vector3 t)
+    {
+        Transform = CreateViewMatrix(e, g, t);
+    }
 
     private static Matrix4 CreateViewMatrix(Vector3 e, Vector3 g, Vector3 t)
     {

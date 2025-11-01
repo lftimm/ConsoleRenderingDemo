@@ -2,6 +2,7 @@
 public class Renderer
 {
     public Matrix4 ProjectionMatrix { get; }
+    public Matrix4 ViewMatrix { get; }
     private float AspectRatio { get; } = 2f;
     private int Width { get; }
     private int Height { get; }
@@ -10,10 +11,12 @@ public class Renderer
     {
         Width = width;
         Height = height;
+        ViewMatrix = new View(new(0.0f, 0f, 1f), new(0f, 0f, -1f), new(0f, 0.5f, -0.5f)).Transform;
+
         var orthogonalMatrix = CreateOrthogonalProjectionMatrix();
         var aspectRatioFix = CreateAspectRatioProjectionMatrix();
         ProjectionMatrix = 
-            Matrix4.MultiplyInCorrectOrder(aspectRatioFix,orthogonalMatrix);
+            Matrix4.MultiplyInCorrectOrder(aspectRatioFix,orthogonalMatrix, ViewMatrix);
     }
 
     private Matrix4 CreateAspectRatioProjectionMatrix()

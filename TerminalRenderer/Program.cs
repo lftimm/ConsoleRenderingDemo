@@ -21,7 +21,7 @@ Enjoy !!
 
 try
 {
-    var trans = Matrix4.Displace(0, -0.75f, 0) * Matrix4.Scale(.30f, .30f, .30f);
+    var trans = Matrix4.Displace(0, -0.75f, 0f) * Matrix4.Scale(.30f, .30f, .30f);
     var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\teapot.obj")
         .Select(x => new Triangle(trans * x.A, trans * x.B, trans * x.C))
         .ToArray();
