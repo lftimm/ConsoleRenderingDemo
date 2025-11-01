@@ -14,22 +14,22 @@ public enum Plane
     YZ
 }
 
-public record struct Vector4(float X, float Y, float Z, float H)
+public record struct Vector4(float X, float Y, float Z, float W)
 {
-    public Vector4 Homogenize() => new(X / H, Y / H, Z / H, 1f);
+    public Vector4 Homogenize() => new(X / W, Y / W, Z / W, 1f);
     public Vector3 Reduce() => new(X, Y, Z);
     public static Vector4 operator *(Matrix4 m, Vector4 v) => new(
-            m[0, 0] * v.X + m[0, 1] * v.Y + m[0, 2] * v.Z + m[0, 3] * v.H,
-            m[1, 0] * v.X + m[1, 1] * v.Y + m[1, 2] * v.Z + m[1, 3] * v.H,
-            m[2, 0] * v.X + m[2, 1] * v.Y + m[2, 2] * v.Z + m[2, 3] * v.H,
-            m[3, 0] * v.X + m[3, 1] * v.Y + m[3, 2] * v.Z + m[3, 3] * v.H
+            m[0, 0] * v.X + m[0, 1] * v.Y + m[0, 2] * v.Z + m[0, 3] * v.W,
+            m[1, 0] * v.X + m[1, 1] * v.Y + m[1, 2] * v.Z + m[1, 3] * v.W,
+            m[2, 0] * v.X + m[2, 1] * v.Y + m[2, 2] * v.Z + m[2, 3] * v.W,
+            m[3, 0] * v.X + m[3, 1] * v.Y + m[3, 2] * v.Z + m[3, 3] * v.W
     );
 }
 
 public record struct Vector3(float X, float Y, float Z) 
 {
-    public Vector4 Extend(int h=1) => new Vector4(X,Y,Z,h);
-    public float Dot(Vector3 v2) => X * v2.X + Y * v2.Y + Z * v2.Z;
+    public Vector4 Extend(int w=1) => new Vector4(X,Y,Z,w);
+    public float Dot(Vector3 v) => X * v.X + Y * v.Y + Z * v.Z;
     public Vector3 Cross(Vector3 v2) => new(
             Y * v2.Z - Z * v2.Y,
             Z * v2.X - X * v2.Z,

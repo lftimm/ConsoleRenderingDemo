@@ -52,7 +52,7 @@ public partial record struct Matrix4
         return m;
     }
 
-    public static Matrix4 Sheer(Plane plane, float amount)
+    public static Matrix4 Shear(Plane plane, float amount)
     {
         var m = Identity();
 
