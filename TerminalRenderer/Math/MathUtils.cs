@@ -74,6 +74,8 @@ public partial record struct Matrix4(float[,] Values)
     });
 
     public Vector3 Transform(Vector3 v) => (this * v.Extend()).Reduce();
+    public Triangle Transform(Triangle v) => new Triangle(Transform(v.A), Transform(v.B), Transform(v.C));
+    public Triangle[] Transform(Triangle[] v) => v.Select(Transform).ToArray();
 
     public static Matrix4 operator *(Matrix4 m1, Matrix4 m2)
     {

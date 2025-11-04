@@ -19,7 +19,7 @@ public class Renderer
 
     public Renderer(int width, int height, KeyboardEventHandler keyboardEventHandler)
     {
-        //keyboardEventHandler.OnKeyPress += OnKeyPressed;
+        keyboardEventHandler.OnKeyPress += OnKeyPressed;
         Width = width;
         Height = height;
         ViewMatrix = new View(new(0f, 0f, -1f), new(0f, 0f, -1f), new(0f, 0.5f, -0.5f)).Transform;

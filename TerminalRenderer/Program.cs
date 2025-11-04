@@ -27,13 +27,13 @@ try
     float amount = 0f;
     object amountLock = new object();
 
-    var trans = Matrix4.Displace(0, -0.75f, 0f) * Matrix4.Scale(.30f, .30f, .30f);
+    var trans = Matrix4.Displace(0, 0, 2f); 
     var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\teapot.obj")
         .Select(x => new Triangle(trans.Transform(x.A), trans.Transform(x.B), trans.Transform(x.C)))
         .ToArray();
 
     var cube = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\cube.obj");
-
+        
     var x = Console.WindowWidth;
     var y = Console.WindowHeight-1;
 
@@ -42,10 +42,8 @@ try
     window.RenderScene((t) =>
     {
         var amountD = -rotationSpeed * t;
-        var displace = Matrix4.Rotate(Axis.X, amountD);
-        return cube
-            .Select(x => new Triangle(displace.Transform(x.A), displace.Transform(x.B), displace.Transform(x.C)))
-            .ToArray();
+        var displace = trans * Matrix4.Rotate(Axis.X, amountD) *  Matrix4.Rotate(Axis.Y, amountD);
+        return displace.Transform(cube);
     });
 
 } catch (Exception ex)
