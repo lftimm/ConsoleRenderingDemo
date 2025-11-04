@@ -22,7 +22,7 @@ public class KeyboardEventHandler
         while (true)
         {
             if (Console.KeyAvailable)
-                OnKeyPress?.Invoke(this, new (Console.ReadKey(false).Key));
+                OnKeyPress?.Invoke(this, new (Console.ReadKey(true).Key));
 
             await Task.Delay(16);
         }

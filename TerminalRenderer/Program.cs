@@ -34,26 +34,18 @@ try
 
     var cube = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\cube.obj");
 
-
-
     var x = Console.WindowWidth;
     var y = Console.WindowHeight-1;
 
     var window = new ConsoleEngine(x,y);
-
+    var rotationSpeed = 45.0f;
     window.RenderScene((t) =>
     {
-        float currentAmount;
-        lock (amountLock)
-        {
-            currentAmount = amount;
-        }
-
-        //var amountD = -rotationSpeed * t;
-        //var displace = Matrix4.Rotate(Axis.Z, amountD) * Matrix4.Displace(0, 0, currentAmount);
-        return cube;
-            //.Select(x => new Triangle(displace.Transform(x.A), displace.Transform(x.B), displace.Transform(x.C)))
-            //.ToArray();
+        var amountD = -rotationSpeed * t;
+        var displace = Matrix4.Rotate(Axis.X, amountD);
+        return cube
+            .Select(x => new Triangle(displace.Transform(x.A), displace.Transform(x.B), displace.Transform(x.C)))
+            .ToArray();
     });
 
 } catch (Exception ex)

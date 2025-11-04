@@ -1,4 +1,4 @@
-﻿namespace TerminalRenderer;
+namespace TerminalRenderer;
 public class Renderer
 {
     private const float Step = 0.1f;
@@ -16,6 +16,7 @@ public class Renderer
         get { return _viewMatrix; }
         set { _viewMatrix = value; CalculateProjection(_viewMatrix);  }
     }
+
 
     public Renderer(int width, int height, KeyboardEventHandler keyboardEventHandler)
     {
@@ -172,9 +173,6 @@ public class Renderer
                 var beta = getBeta(x, y);
                 var gamma = getGamma(x, y);
                 var alpha = 1 - beta - gamma;
-
-                if(!(beta.IsAlmostEqualTo(0) || gamma.IsAlmostEqualTo(0) || alpha.IsAlmostEqualTo(0)))
-                    continue;
 
                 if (beta >= 0 && gamma >= 0 && (beta + gamma) <= 1)
                 {

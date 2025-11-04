@@ -15,7 +15,7 @@ public class ConsoleEngine
     public ConsoleEngine(int width, int height)
     {
         Console.CursorVisible = false;
-        KeyboardEventHandler = new KeyboardEventHandler();
+        //KeyboardEventHandler = new KeyboardEventHandler();
         Buffer = new FrameBuffer(width, height);
         Renderer = new Renderer(width, height, KeyboardEventHandler);
         PostProcess = new PostProcess();
@@ -33,7 +33,7 @@ public class ConsoleEngine
             foreach (var t in draw((float)watch.Elapsed.TotalSeconds))
                 Renderer.Render(Buffer, t);
 
-            PostProcess.Apply(Buffer);
+            //PostProcess.Apply(Buffer);
 
             DisplayBuffer();
         }

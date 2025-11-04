@@ -14,6 +14,11 @@ public enum Plane
     YZ
 }
 
+public static class FloatExtensions
+{
+    public static bool IsAlmostEqualTo(this float a, float b) => Math.Abs(a - b) < 5e-2f;
+}
+
 public record struct Vector4(float X, float Y, float Z, float W)
 {
     public Vector4 Homogenize() => new(X / W, Y / W, Z / W, 1f);
