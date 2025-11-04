@@ -1,14 +1,18 @@
 ﻿namespace TerminalRenderer;
 public class Renderer
 {
-    public Matrix4 ProjectionMatrix { get; }
-    public Matrix4 ViewMatrix { get; }
-    private float AspectRatio { get; } = 2f;
     private int Width { get; }
     private int Height { get; }
+    private float AspectRatio { get; } = 2f;
+    public Matrix4 ProjectionMatrix { get; }
+    public Matrix4 ViewMatrix { get; }
+    public float NearPlane { get; }
+    public float FarPlane { get; }
+    public float FieldOfView { get; }
 
-    public Renderer(int width, int height)
+    public Renderer(int width, int height, KeyboardEventHandler keyboardEventHandler)
     {
+        keyboardEventHandler.OnKeyPress += OnKeyPressed;
         Width = width;
         Height = height;
         ViewMatrix = new View(new(0f, 0f, -1f), new(0f, 0f, -1f), new(0f, 0.5f, -0.5f)).Transform;
@@ -19,6 +23,23 @@ public class Renderer
 
         ProjectionMatrix = 
             Matrix4.MultiplyInCorrectOrder(aspectRatioFix, orthogonalMatrix, perspectiveMatrix, ViewMatrix);
+    }
+
+    private void OnKeyPressed(object? sender, KeyboardEventArgs e)
+    {
+        switch(e.Key)
+        {
+            case ConsoleKey.W:
+                break;
+            case ConsoleKey.S:
+                break;
+            case ConsoleKey.A:
+                break;
+            case ConsoleKey.D:
+                break;
+            case ConsoleKey.Escape:
+                break;
+        }
     }
 
     private Matrix4 CreatePerspectiveProjectionMatrix()
@@ -46,7 +67,6 @@ public class Renderer
 
     public void Render(FrameBuffer buffer, Triangle triangle)
     {
-    
         if(buffer.Width != Width || buffer.Height != Height)
             throw new ArgumentException("FrameBuffer size does not match Renderer size.");
 
@@ -54,9 +74,16 @@ public class Renderer
         var stepY = .5f;
 
         // Vertex shader 
-        var a = (ProjectionMatrix * triangle.A.Extend()).Homogenize().Reduce();
-        var b = (ProjectionMatrix * triangle.B.Extend()).Homogenize().Reduce();
-        var c = (ProjectionMatrix * triangle.C.Extend()).Homogenize().Reduce();
+        var a4 = (ProjectionMatrix * triangle.A.Extend());
+        var b4 = (ProjectionMatrix * triangle.B.Extend());
+        var c4 = (ProjectionMatrix * triangle.C.Extend());
+
+        if (a4.W <= 0.01f || b4.W <= 0.01f || c4.W <= 0.01f)
+            return;
+
+        var a = a4.Homogenize().Reduce();
+        var b = b4.Homogenize().Reduce();
+        var c = c4.Homogenize().Reduce();
 
         // Tesselation
         var triangleCoords = 

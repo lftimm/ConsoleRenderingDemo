@@ -1,4 +1,5 @@
-﻿using TerminalRenderer;
+﻿using System.Diagnostics;
+using TerminalRenderer;
 
 /*
 This code is my companion to reading Peter Shirley's Fundamentals of Computer Graphics
@@ -23,20 +24,36 @@ Note: If anyone ever touches this again, consider rewriting the math classes to 
 
 try
 {
+    float amount = 0f;
+    object amountLock = new object();
+
     var trans = Matrix4.Displace(0, -0.75f, 0f) * Matrix4.Scale(.30f, .30f, .30f);
     var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\teapot.obj")
         .Select(x => new Triangle(trans.Transform(x.A), trans.Transform(x.B), trans.Transform(x.C)))
         .ToArray();
 
+    var cube = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\cube.obj");
+
+
+
     var x = Console.WindowWidth;
     var y = Console.WindowHeight-1;
 
     var window = new ConsoleEngine(x,y);
-    var rotationSpeed = 45.0f;
+
     window.RenderScene((t) =>
     {
-        var rotate = Matrix4.Rotate(Axis.Y, rotationSpeed * t) * (Matrix4.Rotate(Axis.Z, rotationSpeed * t));
-        return teapot.Select(x => new Triangle(rotate.Transform(x.A), rotate.Transform(x.B), rotate.Transform(x.C))).ToArray();
+        float currentAmount;
+        lock (amountLock)
+        {
+            currentAmount = amount;
+        }
+
+        //var amountD = -rotationSpeed * t;
+        //var displace = Matrix4.Rotate(Axis.Z, amountD) * Matrix4.Displace(0, 0, currentAmount);
+        return cube;
+            //.Select(x => new Triangle(displace.Transform(x.A), displace.Transform(x.B), displace.Transform(x.C)))
+            //.ToArray();
     });
 
 } catch (Exception ex)

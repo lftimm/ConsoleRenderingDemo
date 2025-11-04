@@ -10,12 +10,14 @@ public class ConsoleEngine
     private Renderer Renderer { get; }
     private PostProcess PostProcess{ get; }
     private StringBuilder StringBuilder { get; }
+    private KeyboardEventHandler KeyboardEventHandler { get; }
 
     public ConsoleEngine(int width, int height)
     {
         Console.CursorVisible = false;
+        KeyboardEventHandler = new KeyboardEventHandler();
         Buffer = new FrameBuffer(width, height);
-        Renderer = new Renderer(width, height);
+        Renderer = new Renderer(width, height, KeyboardEventHandler);
         PostProcess = new PostProcess();
         StringBuilder = new StringBuilder();
     }
@@ -28,7 +30,8 @@ public class ConsoleEngine
             Buffer.Clear(Brightness.Dark);
             StringBuilder.Clear();
 
-            Parallel.ForEach(draw((float)watch.Elapsed.TotalSeconds),(t) => Renderer.Render(Buffer, t));
+            foreach (var t in draw((float)watch.Elapsed.TotalSeconds))
+                Renderer.Render(Buffer, t);
 
             PostProcess.Apply(Buffer);
 
