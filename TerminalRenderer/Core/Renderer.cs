@@ -1,7 +1,7 @@
 ﻿namespace TerminalRenderer;
 public class Renderer
 {
-    private const float Step = 0.1f;
+    private const float Step = 0.2f;
     private int Width { get; }
     private int Height { get; }
     private float AspectRatio { get; } = 2f;
@@ -17,12 +17,16 @@ public class Renderer
         set { _viewMatrix = value; CalculateProjection(_viewMatrix);  }
     }
 
+    private Vector3 _eye = new(0f, 0f, -1f);
+    private Vector3 _gaze = new(0f, 0f, -1f);
+    private Vector3 _up = new(0f, 1f, 0f);
+
     public Renderer(int width, int height, KeyboardEventHandler keyboardEventHandler)
     {
         keyboardEventHandler.OnKeyPress += OnKeyPressed;
         Width = width;
         Height = height;
-        ViewMatrix = new View(new(0f, 0f, -1f), new(0f, 0f, -1f), new(0f, 0.5f, -0.5f)).Transform;
+        ViewMatrix = new View(_eye,_gaze, _up).Transform;
     }
 
     private void CalculateProjection(Matrix4 viewMatrix)
@@ -35,25 +39,42 @@ public class Renderer
             Matrix4.MultiplyInCorrectOrder(aspectRatioFix, orthogonalMatrix, perspectiveMatrix, viewMatrix);
     }
 
+
     private void OnKeyPressed(object? sender, KeyboardEventArgs e)
     {
-        switch(e.Key)
+        Vector3 forward = Vector3.Normalize(_gaze);
+        Vector3 right = Vector3.Normalize(forward.Cross(_up));
+
+        switch (e.Key)
         {
             case ConsoleKey.W:
-                ViewMatrix *= Matrix4.Displace(0f, 0f, -Step);
+                _eye -= forward * Step;
                 break;
             case ConsoleKey.S:
-                ViewMatrix *= Matrix4.Displace(0f, 0f, +Step);
+                _eye += forward * Step;
                 break;
             case ConsoleKey.A:
-                ViewMatrix *= Matrix4.Displace(-Step, 0f, 0f);
+                _eye -= right * Step;
                 break;
             case ConsoleKey.D:
-                ViewMatrix *= Matrix4.Displace(Step, 0f, 0f);
+                _eye += right * Step;
                 break;
-            case ConsoleKey.Escape:
+            case ConsoleKey.Q: 
+                _gaze = Matrix4.Rotate(Axis.Y, -Step * 10).Transform(_gaze);
+                break;
+            case ConsoleKey.E: 
+                _gaze = Matrix4.Rotate(Axis.Y, +Step * 10).Transform(_gaze);
+                break;
+            case ConsoleKey.Spacebar:
+                _eye += _up * Step;
+                break;
+            case ConsoleKey.C:
+                _eye -= _up * Step;
                 break;
         }
+
+        ViewMatrix = new View(_eye, _gaze, _up).Transform;
+
     }
 
     private Matrix4 CreatePerspectiveProjectionMatrix()

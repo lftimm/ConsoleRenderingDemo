@@ -24,26 +24,26 @@ Note: If anyone ever touches this again, consider rewriting the math classes to 
 
 try
 {
-    float amount = 0f;
-    object amountLock = new object();
-
     var trans = Matrix4.Displace(0, 0, 2f); 
-    var teapot = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\teapot.obj")
+    var teapot = ObjImporter.Read(@"Assets\teapot.obj")
         .Select(x => new Triangle(trans.Transform(x.A), trans.Transform(x.B), trans.Transform(x.C)))
         .ToArray();
 
-    var cube = ObjImporter.Read(@"C:\Users\lftim\source\repos\TerminalRenderer\TerminalRenderer\Assets\cube.obj");
+    teapot = Matrix4.Scale(0.5f,0.5f,0.5f).Transform(teapot);
+
+    var cubefactory = () => ObjImporter.Read(@"Assets\cube.obj");
+    var cube = Matrix4.Displace(-2f,0,0).Transform(cubefactory());
+    var cube2 = Matrix4.Displace(2f,0,0).Transform(cubefactory());
         
     var x = Console.WindowWidth;
     var y = Console.WindowHeight-1;
 
     var window = new ConsoleEngine(x,y);
     var rotationSpeed = 45.0f;
+
     window.RenderScene((t) =>
     {
-        var amountD = -rotationSpeed * t;
-        var displace = trans * Matrix4.Rotate(Axis.X, amountD) *  Matrix4.Rotate(Axis.Y, amountD);
-        return displace.Transform(cube);
+        return [.. cube, ..cube2];
     });
 
 } catch (Exception ex)
