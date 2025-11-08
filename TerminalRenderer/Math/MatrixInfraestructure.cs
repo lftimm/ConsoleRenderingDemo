@@ -77,5 +77,5 @@ public partial record struct Matrix4
         return m;
     }
 
-    private static float ToRadians(float angleInDegrees) => angleInDegrees * MathF.PI / 180;
+    public static float ToRadians(float angleInDegrees) => angleInDegrees * MathF.PI / 180;
 }

@@ -9,7 +9,9 @@ public class Renderer
     public float NearPlane { get; }
     public float FarPlane { get; }
     public float FieldOfView { get; }
-
+    public float TopPlane { get; }
+    public float RightPlane { get; }
+    public float TanHalfFov { get; }
     private Matrix4 _viewMatrix;
     public Matrix4 ViewMatrix
     {
@@ -27,6 +29,15 @@ public class Renderer
         Width = width;
         Height = height;
         ViewMatrix = new View(_eye,_gaze, _up).Transform;
+
+
+        FieldOfView = 90f;
+        TanHalfFov = MathF.Tan(Matrix4.ToRadians(FieldOfView / 2));
+
+        FarPlane = -1f;
+        NearPlane = 1f;
+        TopPlane = NearPlane * TanHalfFov;
+        RightPlane = Width / (Height*2) * TopPlane ;
     }
 
     private void CalculateProjection(Matrix4 viewMatrix)
@@ -79,8 +90,8 @@ public class Renderer
 
     private Matrix4 CreatePerspectiveProjectionMatrix()
     {
-        var n = 1f;
-        var f = -1f;
+        var n = NearPlane;
+        var f = FarPlane;
 
         var m = new Matrix4(new float[4, 4]
         {
@@ -147,12 +158,12 @@ public class Renderer
 
     private Matrix4 CreateOrthogonalProjectionMatrix()
     {
-        var l = -1f;
-        var r = 1f;
-        var b = -1f;
-        var t = 1f;
-        var n = 1f;
-        var f = -1f;
+        var r = RightPlane;
+        var l = -r;
+        var t = TopPlane;
+        var b = -t;
+        var n = NearPlane;
+        var f = FarPlane;
 
         var scaleX = Width / 2;
         var scaleY = Height / 2;

@@ -21,16 +21,8 @@ Enjoy !!
 Note: If anyone ever touches this again, consider rewriting the math classes to use System.Numerics.
 */
 
-
 try
 {
-    var trans = Matrix4.Displace(0, 0, 2f); 
-    var teapot = ObjImporter.Read(@"Assets\teapot.obj")
-        .Select(x => new Triangle(trans.Transform(x.A), trans.Transform(x.B), trans.Transform(x.C)))
-        .ToArray();
-
-    teapot = Matrix4.Scale(0.5f,0.5f,0.5f).Transform(teapot);
-
     var cubefactory = () => ObjImporter.Read(@"Assets\cube.obj");
     var cube = Matrix4.Displace(-2f,0,0).Transform(cubefactory());
     var cube2 = Matrix4.Displace(2f,0,0).Transform(cubefactory());
@@ -39,8 +31,6 @@ try
     var y = Console.WindowHeight-1;
 
     var window = new ConsoleEngine(x,y);
-    var rotationSpeed = 45.0f;
-
     window.RenderScene((t) =>
     {
         return [.. cube, ..cube2];
